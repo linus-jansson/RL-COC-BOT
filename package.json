@@ -1,0 +1,20 @@
+{
+  "name": "rl-coc-bot",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "start": "node --loader ts-node/esm.mjs index.ts",
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "discord.js": "^14.16.2",
+    "dotenv": "^16.4.5",
+    "pino": "^9.4.0"
+  }
+}
