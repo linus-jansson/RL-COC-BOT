@@ -15,7 +15,6 @@ export async function execute(interaction: CommandInteraction) {
     const playerTag = interaction.options.get('player_tag')?.value;
     const token = interaction.options.get('token')?.value;
     
-
     if (!playerTag || !token) {
         return interaction.reply("Invalid player tag or token");
     }
@@ -30,25 +29,29 @@ export async function execute(interaction: CommandInteraction) {
     if (!member) {
        logger.warn("Member not exists, cannot add role");
     }
-    const verifiedRole = interaction.guild?.roles.cache.find(role => role.name === 'Verified');
+    let verifiedRole = interaction.guild?.roles.cache.find(role => role.name === 'verified'.toLowerCase());
     if (!verifiedRole) {
         logger.warn("Verified role not exists, cannot add role");
-        await interaction.guild?.roles.create({
+        verifiedRole = await interaction.guild?.roles.create({
             name: "verified"
         });
     }
+
     await member?.roles.add(verifiedRole);
 
     const playerRole = await getPlayerRole(playerTag as string);
-
+    console.log(playerRole);
     if(!playerRole) {
         return interaction.reply("Seems like you are not a member of the clan");
     }
+
+    // Change nickname to the player Name
+    member?.setNickname(playerRole.name);
     
-    const roleToAdd = interaction.guild?.roles.cache.find(role => role.name === playerRole);
+    let roleToAdd = interaction.guild?.roles.cache.find(role => role.name === playerRole.role.toLowerCase());
     if (!roleToAdd) {
         logger.warn("Role not exists, cannot add role, creating");
-        await interaction.guild?.roles.create({
+        roleToAdd = await interaction.guild?.roles.create({
             name: playerRole
         });
     }

@@ -18,9 +18,11 @@ export async function verifyPlayerToken(p_tag: string, token: string) : Promise<
         })
         if (!response.ok) {
             let error = await response.json();
+            console.error(error);
             throw error;
         }
         const data = await response.json();
+        console.log(data);
         return data.status === 'ok';
     } catch (error) {
         logger.error("Failed to verify token due to error ", error);
@@ -29,7 +31,11 @@ export async function verifyPlayerToken(p_tag: string, token: string) : Promise<
 }
 
 type Role = 'Leader' | 'CoLeader' | 'Elder' | 'Member';
-export async function getPlayerRole(p_tag: string): Promise<Role | null> {
+type SimplifiedPlayer = {
+    name: string;
+    role: Role;
+}
+export async function getPlayerRole(p_tag: string): Promise<SimplifiedPlayer | null> {
     try {
         // URL encode the player tag
         p_tag = encodeURIComponent(p_tag);
@@ -46,11 +52,12 @@ export async function getPlayerRole(p_tag: string): Promise<Role | null> {
 
         const data = await response.json() as Player;
 
-        if (data?.clan?.tag !== ROYAL_LEGENDS_CLAN_TAG 
+        if (data?.clan?.tag !== ROYAL_LEGENDS_CLAN_TAG  || !data?.name
         ) {
             return null;
         }
-        else if(!data.role || data.role === 'NOT_MEMBER')
+        console.log(data.role, data.clan.tag, ROYAL_LEGENDS_CLAN_TAG);
+        if(!data.role || data.role === 'NOT_MEMBER')
         {
             return null;
         }
@@ -62,7 +69,10 @@ export async function getPlayerRole(p_tag: string): Promise<Role | null> {
             'ADMIN': 'Elder',
             'MEMBER': 'Member',
         } as Record<string, Role>;
-        return roles[data.role];
+        return {
+            name: data.name,
+            role: roles[data.role],
+        }
     } catch (error) {
         logger.error("Failed to get player info due to error ", error);
         return null;
